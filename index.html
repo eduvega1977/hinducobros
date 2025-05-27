@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebDeudas</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="datos.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo">
+    <img src="logo.png" alt="WebDeudas Logo">
+  </div>
+  <h2>Consulta tu Deuda</h2>
+  <label>Ingrese su DNI o Código:</label>
+  <input type="text" id="dniInput" placeholder="Ej: 12345678">
+  <button onclick="buscarCliente()">Consultar</button>
+
+  <div id="resultado"></div>
+</div>
+
+<footer>
+  WebDeudas © 2025 | Todos los derechos reservados
+</footer>
+
+<script>
+function buscarCliente() {
+  const dni = document.getElementById('dniInput').value.trim();
+  const cliente = clientes.find(c => c.dni === dni);
+
+  const resultado = document.getElementById('resultado');
+  resultado.innerHTML = '';
+
+  if (cliente) {
+    const ofertaCon15 = (cliente.monto_cancelacion * 1.15).toFixed(2);
+    resultado.innerHTML = `
+      <div class="result">
+        <p><strong>Nombre:</strong> ${cliente.nombre}</p>
+        <p><strong>Entidad Financiera:</strong> ${cliente.origen}</p>
+        <p><strong>Total Deuda:</strong> S/ ${cliente.deuda}</p>
+        <p><strong>Oferta de Cancelación:</strong> S/ ${ofertaCon15}</p>
+        <p>¿Acepta pagar la oferta?</p>
+        <button onclick="aceptarPago('${cliente.dni}', ${ofertaCon15})">Aceptar</button>
+        <button onclick="noAcepto('${cliente.dni}', ${cliente.monto_cancelacion})">No Acepto</button>
+        <div id="negociacion"></div>
+      </div>
+    `;
+  } else {
+    resultado.innerHTML = `<div class="error">DNI no encontrado en la base de datos.</div>`;
+  }
+}
+
+function aceptarPago(dni, monto) {
+  const negociacion = document.getElementById('negociacion');
+  negociacion.innerHTML = `
+    <p><strong>Perfecto. Puede realizar el pago con los siguientes datos:</strong></p>
+    <p>Banco BCP</p>
+    <p>Cuenta Corriente Soles: 19197763870081</p>
+    <p>Enviar el comprobante al WhatsApp: +51 959 973 442</p>
+    <p>o al email: gerencia@zangtel.com</p>
+    <p><strong>Monto a pagar:</strong> S/ ${monto}</p>
+    <p><strong>Confirmando el depósito, estaremos enviando su Carta de NO ADEUDO.</strong></p>
+  `;
+}
+
+function noAcepto(dni, montoCancelacion) {
+  const negociacion = document.getElementById('negociacion');
+  negociacion.innerHTML = `
+    <p>Ingrese el monto que estaría dispuesto a pagar:</p>
+    <input type="number" id="ofertaInput" placeholder="S/">
+    <button onclick="enviarOferta(${montoCancelacion})">Enviar Oferta</button>
+  `;
+}
+
+function enviarOferta(montoCancelacion) {
+  const oferta = parseFloat(document.getElementById('ofertaInput').value);
+  const negociacion = document.getElementById('negociacion');
+
+  if (isNaN(oferta)) {
+    negociacion.innerHTML += `<p class="error">Por favor, ingrese un monto válido.</p>`;
+    return;
+  }
+
+  if (oferta >= montoCancelacion) {
+    negociacion.innerHTML = `
+      <p><strong>Oferta aceptada.</strong></p>
+      <p>Puede realizar el pago con los siguientes datos:</p>
+      <p>Banco BCP</p>
+      <p>Cuenta Corriente Soles: 19197763870081</p>
+      <p>Enviar el comprobante al WhatsApp: +51 959 973 442</p>
+      <p>o al email: gerencia@zangtel.com</p>
+      <p><strong>Monto a pagar:</strong> S/ ${oferta}</p>
+      <p><strong>Confirmando el depósito, estaremos enviando su Carta de NO ADEUDO.</strong></p>
+    `;
+  } else {
+    negociacion.innerHTML = `
+      <p>Su propuesta ha sido enviada y será evaluada por nuestro equipo.</p>
+      <p>Nos pondremos en contacto en breve.</p>
+    `;
+  }
+}
+</script>
+
+</body>
+</html>
